@@ -6,7 +6,7 @@ num_epochs = 200
 batch_size = 128
 optim_type = 'SGD'
 is_hyp = True
-c = 1
+c = 0.01
 l_reg = 0.0001
 
 mean = {
