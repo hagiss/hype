@@ -33,7 +33,7 @@ args = parser.parse_args()
 # Hyper Parameter settings
 use_cuda = torch.cuda.is_available()
 best_acc = 0
-start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
+start_epoch, num_epochs, batch_size, optim_type, is_hyp, c = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type, cf.is_hyp, cf.c
 
 # Data Uplaod
 print('\n[Phase 1] : Data Preparation')
@@ -77,8 +77,8 @@ def getNetwork(args):
         net = ResNet(args.depth, num_classes)
         file_name = 'resnet-'+str(args.depth)
     elif (args.net_type == 'wide-resnet'):
-        net = Wide_ResNet(args.depth, args.widen_factor, args.dropout, num_classes)
-        file_name = 'wide-resnet-'+str(args.depth)+'x'+str(args.widen_factor)
+        net = Wide_ResNet(args.depth, args.widen_factor, args.dropout, num_classes, is_hyp, c)
+        file_name = 'wide-resnet-'+str(args.depth)+'x'+str(args.widen_factor)+'_hyp:'+str(is_hyp)+str(c)
     else:
         print('Error : Network should be either [LeNet / VGGNet / ResNet / Wide_ResNet')
         sys.exit(0)

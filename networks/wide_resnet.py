@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.init as init
 import torch.nn.functional as F
 from torch.autograd import Variable
+import hyp_metric.hyptorch.nn as hypnn
+from hyp_metric.hyptorch.pmath import mobius_add
 
 import sys
 import numpy as np
@@ -42,9 +44,11 @@ class wide_basic(nn.Module):
         return out
 
 class Wide_ResNet(nn.Module):
-    def __init__(self, depth, widen_factor, dropout_rate, num_classes):
+    def __init__(self, depth, widen_factor, dropout_rate, num_classes, is_hyp=False, c=1):
         super(Wide_ResNet, self).__init__()
         self.in_planes = 16
+        self.c = c
+        self.is_hyp = is_hyp
 
         assert ((depth-4)%6 ==0), 'Wide-resnet depth should be 6n+4'
         n = (depth-4)/6
@@ -58,7 +62,10 @@ class Wide_ResNet(nn.Module):
         self.layer2 = self._wide_layer(wide_basic, nStages[2], n, dropout_rate, stride=2)
         self.layer3 = self._wide_layer(wide_basic, nStages[3], n, dropout_rate, stride=2)
         self.bn1 = nn.BatchNorm2d(nStages[3], momentum=0.9)
-        self.linear = nn.Linear(nStages[3], num_classes)
+        if is_hyp:
+            self.linear = hypnn.HyperbolicMLR(nStages[3], num_classes, self.c)
+        else:
+            self.linear = nn.Linear(nStages[3], num_classes)
 
     def _wide_layer(self, block, planes, num_blocks, dropout_rate, stride):
         strides = [stride] + [1]*(int(num_blocks)-1)
@@ -78,9 +85,16 @@ class Wide_ResNet(nn.Module):
         out = F.relu(self.bn1(out))
         out = F.avg_pool2d(out, 8)
         out = out.view(out.size(0), -1)
+        out_norm = torch.norm(out, dim=-1, keepdim=True) + 1e-5
+        if self.is_hyp:
+            x = out
+            out = mobius_add(x/2, x/4)
+            out = mobius_add(out, x/8)
+            out = mobius_add(out, x/16)
+
         out = self.linear(out)
 
-        return out
+        return out, out_norm
 
 if __name__ == '__main__':
     net=Wide_ResNet(28, 10, 0.3, 10)
