@@ -44,10 +44,11 @@ class wide_basic(nn.Module):
         return out
 
 class Wide_ResNet(nn.Module):
-    def __init__(self, depth, widen_factor, dropout_rate, num_classes, is_hyp=False, c=1):
+    def __init__(self, depth, widen_factor, dropout_rate, num_classes, is_hyp=False, c=0.01, c_add=1):
         super(Wide_ResNet, self).__init__()
         self.in_planes = 16
         self.c = c
+        self.c_add = c_add
         self.is_hyp = is_hyp
 
         assert ((depth-4)%6 ==0), 'Wide-resnet depth should be 6n+4'
@@ -88,9 +89,9 @@ class Wide_ResNet(nn.Module):
         out_norm = torch.norm(out, dim=-1, keepdim=True) + 1e-5
         if self.is_hyp:
             x = out
-            out = mobius_add(x/2, x/4, c=self.c)
-            out = mobius_add(out, x/8, c=self.c)
-            out = mobius_add(out, x/16, c=self.c)
+            out = mobius_add(x/2, x/4, c=self.c_add)
+            out = mobius_add(out, x/8, c=self.c_add)
+            out = mobius_add(out, x/16, c=self.c_add)
 
         out = self.linear(out)
 
