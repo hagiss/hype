@@ -7,6 +7,7 @@ batch_size = 128
 optim_type = 'SGD'
 is_hyp = True
 c = 1
+l_reg = 0.0001
 
 mean = {
     'cifar10': (0.4914, 0.4822, 0.4465),

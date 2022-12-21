@@ -33,7 +33,7 @@ args = parser.parse_args()
 # Hyper Parameter settings
 use_cuda = torch.cuda.is_available()
 best_acc = 0
-start_epoch, num_epochs, batch_size, optim_type, is_hyp, c = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type, cf.is_hyp, cf.c
+start_epoch, num_epochs, batch_size, optim_type, is_hyp, c, l_reg = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type, cf.is_hyp, cf.c, cf.l_reg
 
 # Data Uplaod
 print('\n[Phase 1] : Data Preparation')
@@ -158,8 +158,10 @@ def train(epoch):
             inputs, targets = inputs.cuda(), targets.cuda() # GPU settings
         optimizer.zero_grad()
         inputs, targets = Variable(inputs), Variable(targets)
-        outputs = net(inputs)               # Forward Propagation
+        outputs, norm = net(inputs)               # Forward Propagation
         loss = criterion(outputs, targets)  # Loss
+        log_norm = torch.log(norm)
+        loss += l_reg * torch.norm(log_norm - torch.mean(log_norm))
         loss.backward()  # Backward Propagation
         optimizer.step() # Optimizer update
 
