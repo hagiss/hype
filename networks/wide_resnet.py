@@ -87,6 +87,7 @@ class Wide_ResNet(nn.Module):
         out = F.avg_pool2d(out, 8)
         out = out.view(out.size(0), -1)
         out_norm = torch.norm(out, dim=-1, keepdim=True) + 1e-5
+        # out = out / 4
         # if self.is_hyp:
         #     x = out
         #     out = mobius_add(x/2, x/4, c=self.c_add)
