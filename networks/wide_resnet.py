@@ -90,8 +90,8 @@ class Wide_ResNet(nn.Module):
         if self.is_hyp:
             x = out
             out = mobius_add(x/2, x/4, c=self.c_add)
-            out = mobius_add(out, x/8, c=self.c_add)
-            out = mobius_add(out, x/16, c=self.c_add)
+            # out = mobius_add(out, x/8, c=self.c_add)
+            # out = mobius_add(out, x/16, c=self.c_add)
 
         out = self.linear(out)
 
