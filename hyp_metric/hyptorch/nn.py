@@ -71,6 +71,7 @@ class HypClassifer(nn.Module):
 
         x = torch.norm(x - self.weight, dim=-1, keepdim=True)
         print("x", x.shape)
+        print("norm", norm.shape)
 
         logits = x * norm
         return logits
