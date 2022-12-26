@@ -82,7 +82,7 @@ class HypClassifer(nn.Module):
         # print("x", x.shape)
         # print("norm", norm.shape)
 
-        logits = x @ weight.T + self.bias * x_norm * weight_norm
+        logits = x @ weight.T + self.bias
         return logits
 
 class HypLinear(nn.Module):
