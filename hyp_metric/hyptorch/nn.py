@@ -67,8 +67,8 @@ class HypClassifer(nn.Module):
             init.uniform_(self.bias, -bound, bound)
 
     def forward(self, x):
-        # x = repeat(x, "b d -> b nc d", nc=self.num_classes)
-        x_norm = torch.norm(x, dim=-1)
+        _x = repeat(x, "b d -> b nc d", nc=self.num_classes)
+        x_norm = torch.norm(_x, dim=-1)
         # x = x * x_norm
         weight_norm = torch.norm(self.weight, dim=-1)
         # weight = self.weight * weight_norm
