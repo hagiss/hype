@@ -69,7 +69,7 @@ class HypClassifer(nn.Module):
         weight_norm = torch.exp(weight_norm * self.c)
         norm = x_norm * weight_norm  # [batch, num_classes]
 
-        x = torch.norm(x - self.weight, dim=-1).pow(2)
+        x = torch.norm(x - self.weight, dim=-1)
         # print("x", x.shape)
         # print("norm", norm.shape)
 
