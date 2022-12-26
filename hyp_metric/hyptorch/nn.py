@@ -50,7 +50,7 @@ class HypClassifer(nn.Module):
         super(HypClassifer, self).__init__()
         self.in_features = in_features
         self.num_classes = num_classes
-        self.c = c
+        self.c = nn.Parameter(torch.tensor(c))
         self.weight = nn.Parameter(torch.Tensor(self.num_classes, self.in_features))
         self.reset_parameters()
 
