@@ -53,24 +53,24 @@ class HypClassifer(nn.Module):
         # self.c = nn.Parameter(torch.tensor(c))
         self.c = c
         self.weight = nn.Parameter(torch.Tensor(self.num_classes, self.in_features))
-        # if bias:
-        #     self.bias = nn.Parameter(torch.Tensor(self.num_classes))
-        # else:
-        #     self.register_parameter("bias", None)
+        if bias:
+            self.bias = nn.Parameter(torch.Tensor(self.num_classes))
+        else:
+            self.register_parameter("bias", None)
         self.reset_parameters()
 
     def reset_parameters(self):
         init.kaiming_uniform_(self.weight, a=math.sqrt(5))
-        # if self.bias is not None:
-        #     fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
-        #     bound = 1 / math.sqrt(fan_in)
-        #     init.uniform_(self.bias, -bound, bound)
+        if self.bias is not None:
+            fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
+            bound = 1 / math.sqrt(fan_in)
+            init.uniform_(self.bias, -bound, bound)
 
     def forward(self, x):
         # x = repeat(x, "b d -> b nc d", nc=self.num_classes)
-        x_norm = torch.norm(x, dim=-1, keepdim=True).detach() * self.c
+        x_norm = torch.norm(x, dim=-1, keepdim=True) * self.c
         x = x * x_norm
-        weight_norm = torch.norm(self.weight, dim=-1, keepdim=True).detach() * self.c
+        weight_norm = torch.norm(self.weight, dim=-1, keepdim=True) * self.c
         weight = self.weight * weight_norm
         # x_norm = torch.exp(x_norm * self.c)
         # weight_norm = torch.exp(weight_norm * self.c)
@@ -82,7 +82,7 @@ class HypClassifer(nn.Module):
         # print("x", x.shape)
         # print("norm", norm.shape)
 
-        logits = x @ weight.T
+        logits = x @ weight.T + self.bias
         return logits
 
 class HypLinear(nn.Module):
