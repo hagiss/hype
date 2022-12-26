@@ -46,13 +46,17 @@ class HyperbolicMLR(nn.Module):
 
 
 class HypClassifer(nn.Module):
-    def __init__(self, in_features, num_classes, c):
+    def __init__(self, in_features, num_classes, c, bias=True):
         super(HypClassifer, self).__init__()
         self.in_features = in_features
         self.num_classes = num_classes
         # self.c = nn.Parameter(torch.tensor(c))
         self.c = c
         self.weight = nn.Parameter(torch.Tensor(self.num_classes, self.in_features))
+        # if bias:
+        #     self.bias = nn.Parameter(torch.Tensor(self.num_classes))
+        # else:
+        #     self.register_parameter("bias", None)
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -74,7 +78,7 @@ class HypClassifer(nn.Module):
         # print("x", x.shape)
         # print("norm", norm.shape)
 
-        logits = x * norm
+        logits = torch.arccosh(x * norm)
         return -logits
 
 class HypLinear(nn.Module):
