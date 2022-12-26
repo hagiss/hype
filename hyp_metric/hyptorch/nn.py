@@ -56,10 +56,10 @@ class HypClassifer(nn.Module):
 
     def reset_parameters(self):
         init.kaiming_uniform_(self.weight, a=math.sqrt(5))
-        if self.bias is not None:
-            fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
-            bound = 1 / math.sqrt(fan_in)
-            init.uniform_(self.bias, -bound, bound)
+        # if self.bias is not None:
+        #     fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
+        #     bound = 1 / math.sqrt(fan_in)
+        #     init.uniform_(self.bias, -bound, bound)
 
     def forward(self, x):
         x = repeat(x, "b d -> b nc d", nc=self.num_classes)
