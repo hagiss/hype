@@ -64,7 +64,8 @@ class Wide_ResNet(nn.Module):
         self.layer3 = self._wide_layer(wide_basic, nStages[3], n, dropout_rate, stride=2)
         self.bn1 = nn.BatchNorm2d(nStages[3], momentum=0.9)
         if is_hyp:
-            self.linear = hypnn.HyperbolicMLR(nStages[3], num_classes, self.c)
+            # self.linear = hypnn.HyperbolicMLR(nStages[3], num_classes, self.c)
+            self.linear = hypnn.HypClassifer(nStages[3], num_classes, self.c)
         else:
             self.linear = nn.Linear(nStages[3], num_classes)
 
@@ -88,11 +89,11 @@ class Wide_ResNet(nn.Module):
         out = out.view(out.size(0), -1)
         out_norm = torch.norm(out, dim=-1, keepdim=True) + 1e-5
         # out = out / 4
-        if self.is_hyp:
-            x = out
-            out = mobius_add(x/2, x/4, c=self.c_add)
-            out = mobius_add(out, x/8, c=self.c_add)
-            out = mobius_add(out, x/16, c=self.c_add)
+        # if self.is_hyp:
+        #     x = out
+        #     out = mobius_add(x/2, x/4, c=self.c_add)
+        #     out = mobius_add(out, x/8, c=self.c_add)
+        #     out = mobius_add(out, x/16, c=self.c_add)
 
         out = self.linear(out)
 
