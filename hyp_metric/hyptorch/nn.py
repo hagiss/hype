@@ -78,7 +78,7 @@ class HypClassifer(nn.Module):
         # print("x", x.shape)
         # print("norm", norm.shape)
 
-        logits = torch.arccosh(x * norm)
+        logits = x * norm
         return -logits
 
 class HypLinear(nn.Module):
