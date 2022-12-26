@@ -68,7 +68,7 @@ class HypClassifer(nn.Module):
 
     def forward(self, x):
         # x = repeat(x, "b d -> b nc d", nc=self.num_classes)
-        x_norm = torch.norm(x, dim=-1, keepdim=True)
+        x_norm = torch.log(torch.norm(x, dim=-1, keepdim=True))
         x = x * x_norm
         # weight_norm = torch.norm(self.weight, dim=-1)
         # weight = self.weight * weight_norm
