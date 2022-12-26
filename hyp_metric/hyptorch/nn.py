@@ -60,28 +60,30 @@ class HypClassifer(nn.Module):
         self.reset_parameters()
 
     def reset_parameters(self):
-        init.kaiming_uniform_(self.weight, a=math.sqrt(2))
+        init.kaiming_uniform_(self.weight, a=math.sqrt(5))
         # if self.bias is not None:
         #     fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
         #     bound = 1 / math.sqrt(fan_in)
         #     init.uniform_(self.bias, -bound, bound)
 
     def forward(self, x):
-        x = repeat(x, "b d -> b nc d", nc=self.num_classes)
+        # x = repeat(x, "b d -> b nc d", nc=self.num_classes)
         x_norm = torch.norm(x, dim=-1)
+        x = x * x_norm
         weight_norm = torch.norm(self.weight, dim=-1)
-        x_norm = torch.exp(x_norm * self.c)
-        weight_norm = torch.exp(weight_norm * self.c)
-        norm = x_norm * weight_norm  # [batch, num_classes]
+        weight = self.weight * weight_norm
+        # x_norm = torch.exp(x_norm * self.c)
+        # weight_norm = torch.exp(weight_norm * self.c)
+        # norm = x_norm + weight_norm  # [batch, num_classes]
 
         # norm = torch.exp(self.c*x_norm*weight_norm)
 
-        x = torch.norm(x - self.weight, dim=-1)
+        # x = torch.norm(x - self.weight, dim=-1)
         # print("x", x.shape)
         # print("norm", norm.shape)
 
-        logits = x * norm
-        return -logits
+        logits = x @ weight.T
+        return logits
 
 class HypLinear(nn.Module):
     def __init__(self, in_features, out_features, c, bias=True):
