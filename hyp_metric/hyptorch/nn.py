@@ -78,13 +78,13 @@ class HypClassifer(nn.Module):
 
         # norm = torch.exp(self.c*x_norm*weight_norm)
 
-        # x = torch.norm(x - self.weight, dim=-1)
+        x = torch.norm(x - self.weight, dim=-1)
         # print("x", x.shape)
         # print("norm", norm.shape)
 
         # logits = x @ self.weight.T + self.bias
         # logits = x + self.bias
-        logits = x @ self.weight.T * norm + self.bias
+        logits = -x * norm + self.bias
         return logits
 
 class HypLinear(nn.Module):
