@@ -160,10 +160,11 @@ def train(epoch):
         inputs, targets = Variable(inputs), Variable(targets)
         outputs, norm = net(inputs)               # Forward Propagation
         loss = criterion(outputs, targets)  # Loss
-        log_norm = torch.log(norm)
-        loss += l_reg * torch.norm(log_norm - torch.mean(log_norm))
-        loss.backward()  # Backward Propagation
-        optimizer.step() # Optimizer update
+        # log_norm = torch.log(norm)
+        # loss += l_reg * torch.norm(log_norm - torch.mean(log_norm))
+        loss += l_reg * torch.norm(norm - torch.mean(norm))
+        loss.backward()   # Backward Propagation
+        optimizer.step()  # Optimizer update
 
         train_loss += loss.item()
         _, predicted = torch.max(outputs.data, 1)
