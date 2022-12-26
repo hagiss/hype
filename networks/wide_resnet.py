@@ -88,11 +88,11 @@ class Wide_ResNet(nn.Module):
         out = out.view(out.size(0), -1)
         out_norm = torch.norm(out, dim=-1, keepdim=True) + 1e-5
         # out = out / 4
-        # if self.is_hyp:
-        #     x = out
-        #     out = mobius_add(x/2, x/4, c=self.c_add)
-            # out = mobius_add(out, x/8, c=self.c_add)
-            # out = mobius_add(out, x/16, c=self.c_add)
+        if self.is_hyp:
+            x = out
+            out = mobius_add(x/2, x/4, c=self.c_add)
+            out = mobius_add(out, x/8, c=self.c_add)
+            out = mobius_add(out, x/16, c=self.c_add)
 
         out = self.linear(out)
 
