@@ -70,8 +70,8 @@ class HypClassifer(nn.Module):
         x = repeat(x, "b d -> b nc d", nc=self.num_classes)
         x_norm = torch.norm(x, dim=-1)
         weight_norm = torch.norm(self.weight, dim=-1)
-        x_norm = torch.exp(x_norm) * self.c
-        weight_norm = torch.exp(weight_norm) * self.c
+        x_norm = torch.exp(torch.sqrt(x_norm)) * self.c
+        weight_norm = torch.exp(torch.sqrt(weight_norm)) * self.c
         norm = x_norm * weight_norm  # [batch, num_classes]
 
         # norm = torch.exp(self.c*x_norm*weight_norm)
