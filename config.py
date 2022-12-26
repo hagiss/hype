@@ -8,7 +8,7 @@ optim_type = 'SGD'
 is_hyp = True
 c = .1
 c_add = 1.1
-l_reg = 0.0001
+l_reg = 0.000
 
 mean = {
     'cifar10': (0.4914, 0.4822, 0.4465),
