@@ -63,13 +63,13 @@ class HypClassifer(nn.Module):
 
     def forward(self, x):
         x = repeat(x, "b d -> b nc d", nc=self.num_classes)
-        x_norm = torch.norm(x, dim=-1, keepdim=True)
-        weight_norm = torch.norm(self.weight, dim=-1, keepdim=True)
+        x_norm = torch.norm(x, dim=-1)
+        weight_norm = torch.norm(self.weight, dim=-1)
         x_norm = torch.exp(x_norm * self.c)
         weight_norm = torch.exp(weight_norm * self.c)
         norm = x_norm * weight_norm  # [batch, num_classes]
 
-        x = torch.norm(x - self.weight, dim=-1, keepdim=True)
+        x = torch.norm(x - self.weight, dim=-1)
         print("x", x.shape)
         print("norm", norm.shape)
 
