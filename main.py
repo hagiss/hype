@@ -169,7 +169,7 @@ def train(epoch):
         optimizer.step()  # Optimizer update
 
         train_loss += loss.item()
-        _, predicted = torch.max(outputs.data, 1)
+        _, predicted = torch.max(out_h.data, 1)
         total += targets.size(0)
         correct += predicted.eq(targets.data).cpu().sum()
 
