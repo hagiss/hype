@@ -19,6 +19,9 @@ import datetime
 from networks import *
 from torch.autograd import Variable
 
+from sam import SAM
+from bypass_bn import enable_running_stats, disable_running_stats
+
 parser = argparse.ArgumentParser(description='PyTorch CIFAR-10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning_rate')
 parser.add_argument('--net_type', default='wide-resnet', type=str, help='model')
@@ -150,7 +153,9 @@ def train(epoch):
     train_loss = 0
     correct = 0
     total = 0
-    optimizer = optim.SGD(net.parameters(), lr=cf.learning_rate(args.lr, epoch), momentum=0.9, weight_decay=5e-4)
+    base_optimizer = torch.optim.SGD
+    optimizer = SAM(net.parameters(), base_optimizer, rho=2.0, adaptive=True, lr=cf.learning_rate(args.lr, epoch),
+                    momentum=0.9, weight_decay=5e-4)
 
     print('\n=> Training Epoch #%d, LR=%.4f' %(epoch, cf.learning_rate(args.lr, epoch)))
     for batch_idx, (inputs, targets) in enumerate(trainloader):
@@ -158,15 +163,25 @@ def train(epoch):
             inputs, targets = inputs.cuda(), targets.cuda() # GPU settings
         optimizer.zero_grad()
         inputs, targets = Variable(inputs), Variable(targets)
+
+        enable_running_stats(net)
         out_e, out_h, norm = net(inputs)               # Forward Propagation
         loss_e = criterion(out_e, targets)  # Loss
         loss_h = criterion(out_h, targets)
         loss = (loss_e + loss_h) / 2
         # log_norm = torch.log(norm)
         # loss += l_reg * torch.norm(log_norm - torch.mean(log_norm))
-        loss += l_reg * torch.norm(norm - torch.mean(norm))
+        # loss += l_reg * torch.norm(norm - torch.mean(norm))
         loss.backward()   # Backward Propagation
-        optimizer.step()  # Optimizer update
+        optimizer.first_step(zero_grad=True)  # Optimizer update
+
+        disable_running_stats(net)
+        out_e, out_h, norm = net(inputs)  # Forward Propagation
+        loss_e = criterion(out_e, targets)  # Loss
+        loss_h = criterion(out_h, targets)
+        loss2 = (loss_e + loss_h) / 2
+        loss2.backward()
+        optimizer.second_step(zero_grad=True)
 
         train_loss += loss.item()
         _, predicted = torch.max(out_h.data, 1)
