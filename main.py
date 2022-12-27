@@ -154,7 +154,7 @@ def train(epoch):
     correct = 0
     total = 0
     base_optimizer = torch.optim.SGD
-    optimizer = SAM(net.parameters(), base_optimizer, rho=0.05, adaptive=False, lr=cf.learning_rate(args.lr, epoch),
+    optimizer = SAM(net.parameters(), base_optimizer, rho=0.1, adaptive=False, lr=cf.learning_rate(args.lr, epoch),
                     momentum=0.9, weight_decay=5e-4)
 
     print('\n=> Training Epoch #%d, LR=%.4f' %(epoch, cf.learning_rate(args.lr, epoch)))
@@ -208,7 +208,7 @@ def test(epoch):
             if use_cuda:
                 inputs, targets = inputs.cuda(), targets.cuda()
             inputs, targets = Variable(inputs), Variable(targets)
-            outputs, _, _ = net(inputs)
+            _, outputs, _ = net(inputs)
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()
