@@ -161,7 +161,7 @@ def train(epoch):
         out_e, out_h, norm = net(inputs)               # Forward Propagation
         loss_e = criterion(out_e, targets)  # Loss
         loss_h = criterion(out_h, targets)
-        loss = loss_e + loss_h
+        loss = (loss_e + loss_h) / 2
         # log_norm = torch.log(norm)
         # loss += l_reg * torch.norm(log_norm - torch.mean(log_norm))
         loss += l_reg * torch.norm(norm - torch.mean(norm))
