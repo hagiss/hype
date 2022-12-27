@@ -191,9 +191,9 @@ def train(epoch):
         correct += predicted.eq(targets.data).cpu().sum()
 
         sys.stdout.write('\r')
-        sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%%'
+        sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%% Norm: %.3f'
                 %(epoch, num_epochs, batch_idx+1,
-                    (len(trainset)//batch_size)+1, loss.item(), 100.*correct/total))
+                    (len(trainset)//batch_size)+1, loss.item(), 100.*correct/total, norm.mean().item()))
         sys.stdout.flush()
 
 def test(epoch):
