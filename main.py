@@ -233,9 +233,9 @@ def train(epoch):
         correct += predicted.eq(targets.data).cpu().sum()
 
         sys.stdout.write('\r')
-        sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%% Norm: %.3f'
+        sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%% Norm: %.3f Norm_var: %.3f'
                          % (epoch, num_epochs, batch_idx + 1,
-                            (len(trainset) // batch_size) + 1, loss.item(), 100. * correct / total, norm.var().item()))
+                            (len(trainset) // batch_size) + 1, loss.item(), 100. * correct / total, norm.mean().item(), norm.var().item()))
         sys.stdout.flush()
 
 
@@ -261,8 +261,8 @@ def test(epoch):
 
         # Save checkpoint when best model
         acc = 100. * correct / total
-        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%% Norm: %.3f" % (
-        epoch, loss.item(), acc, norm.var().item()))
+        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%% Norm: %.3f Norm_var: %.3f" % (
+        epoch, loss.item(), acc, norm.mean().item(), norm.var().item()))
 
         if acc > best_acc:
             print('| Saving Best model...\t\t\tTop1 = %.2f%%' % (acc))
