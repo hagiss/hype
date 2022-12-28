@@ -28,7 +28,7 @@ class HyperbolicMLR(nn.Module):
             c = torch.as_tensor(self.c).type_as(x)
         else:
             c = torch.as_tensor(c).type_as(x)
-        to_poincare = ToPoincare(c, clip_r=1).cuda()
+        to_poincare = ToPoincare(c, clip_r=1).type_as(x)
         x, _ = to_poincare(x)
         p_vals_poincare = pmath.expmap0(self.p_vals, c=c)
         # p_vals_poincare = self.p_vals
