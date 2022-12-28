@@ -272,13 +272,13 @@ def test(epoch):
                 'acc': acc,
                 'epoch': epoch,
             }
-            if not os.path.isdir('checkpoint'):
-                os.mkdir('checkpoint')
-            save_point = './checkpoint/' + args.dataset + os.sep
-            if not os.path.isdir(save_point):
-                os.mkdir(save_point)
-            torch.save(state, save_point + file_name + '.t7')
-            best_acc = acc
+            # if not os.path.isdir('checkpoint'):
+            #     os.mkdir('checkpoint')
+            # save_point = './checkpoint/' + args.dataset + os.sep
+            # if not os.path.isdir(save_point):
+            #     os.mkdir(save_point)
+            # torch.save(state, save_point + file_name + '.t7')
+            # best_acc = acc
 
 
 print('\n[Phase 3] : Training model')
