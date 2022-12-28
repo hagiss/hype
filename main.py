@@ -17,6 +17,7 @@ import argparse
 import datetime
 
 from networks import *
+from smooth_ce import smooth_crossentropy
 from torch.autograd import Variable
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR-10 Training')
@@ -141,7 +142,8 @@ if use_cuda:
     net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
     cudnn.benchmark = True
 
-criterion = nn.CrossEntropyLoss()
+# criterion = nn.CrossEntropyLoss()
+criterion = smooth_crossentropy
 
 # Training
 def train(epoch):
