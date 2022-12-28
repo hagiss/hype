@@ -21,7 +21,7 @@ class HyperbolicMLR(nn.Module):
         self.c = c
         self.n_classes = n_classes
         self.ball_dim = ball_dim
-        self.to_poincare = ToPoincare(c)
+        self.to_poincare = ToPoincare(c,clip_r=1)
         self.reset_parameters()
 
     def forward(self, x, c=None):
