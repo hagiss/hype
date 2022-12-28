@@ -89,7 +89,7 @@ class HypClassifer(nn.Module):
         # dist =
         # out = torch.sign(eout) * weight_norm * dist
 
-        logits = x @ self.weight.T + self.bias
+        logits = x @ self.weight.T
         # logits = logits * x_norm
         # logits = x + self.bias
         # logits = -x * norm + self.bias
