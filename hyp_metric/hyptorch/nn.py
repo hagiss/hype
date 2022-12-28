@@ -21,7 +21,7 @@ class HyperbolicMLR(nn.Module):
         self.c = c
         self.n_classes = n_classes
         self.ball_dim = ball_dim
-        self.to_poincare = ToPoincare(c,clip_r=1)
+        self.to_poincare = ToPoincare(c, clip_r=1)
         self.reset_parameters()
 
     def forward(self, x, c=None):
@@ -93,7 +93,7 @@ class HypClassifer(nn.Module):
         # logits = logits * x_norm
         # logits = x + self.bias
         # logits = -x * norm + self.bias
-        return logits, logits * torch.sqrt(x_norm)
+        return logits, logits * x_norm
 
 class HypLinear(nn.Module):
     def __init__(self, in_features, out_features, c, bias=True):
