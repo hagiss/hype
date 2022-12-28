@@ -82,14 +82,14 @@ class GaussianBlur(object):
 
 s = 1
 size = 32
-color_jitter = transforms.ColorJitter(0.8 * s, 0.8 * s, 0.8 * s, 0.2 * s)
-transform_test = transforms.Compose([transforms.RandomResizedCrop(size=size),
-                                      transforms.RandomHorizontalFlip(),
-                                      transforms.RandomApply([color_jitter], p=0.8),
-                                      transforms.RandomGrayscale(p=0.2),
-                                      GaussianBlur(kernel_size=int(0.1 * size)),
-                                      transforms.ToTensor(),
-                                      transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset])])
+# color_jitter = transforms.ColorJitter(0.8 * s, 0.8 * s, 0.8 * s, 0.2 * s)
+# transform_test = transforms.Compose([transforms.RandomResizedCrop(size=size),
+#                                       transforms.RandomHorizontalFlip(),
+#                                       transforms.RandomApply([color_jitter], p=0.8),
+#                                       transforms.RandomGrayscale(p=0.2),
+#                                       GaussianBlur(kernel_size=int(0.1 * size)),
+#                                       transforms.ToTensor(),
+#                                       transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset])])
 
 transform_train = transforms.Compose([
     # transforms.RandomCrop(32, padding=4),
@@ -98,10 +98,10 @@ transform_train = transforms.Compose([
     transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
 ]) # meanstd transformation
 
-# transform_test = transforms.Compose([
-#     transforms.ToTensor(),
-#     transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
-# ])
+transform_test = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
+])
 
 if (args.dataset == 'cifar10'):
     print("| Preparing CIFAR-10 dataset...")
@@ -113,8 +113,8 @@ elif (args.dataset == 'cifar100'):
     print("| Preparing CIFAR-100 dataset...")
     sys.stdout.write("| ")
     trainset = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform_train)
-    # testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=False, transform=transform_test)
-    testset = torchvision.datasets.STL10('../dataset', split="test", transform=transform_test, download=False)
+    testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=False, transform=transform_test)
+    # testset = torchvision.datasets.STL10('../dataset', split="test", transform=transform_test, download=False)
     num_classes = 100
 
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
