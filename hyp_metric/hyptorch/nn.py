@@ -88,14 +88,14 @@ class HypClassifer(nn.Module):
         # out = torch.sign(eout) * weight_norm * dist
 
         x = pmath.expmap0(x, c=self.c)
-        self.bias = pmath.expmap0(self.bias, c=self.c)
-        self.weight = pmath.expmap0(self.weight, c=self.c)
+        bias = pmath.expmap0(self.bias, c=self.c)
+        weight = pmath.expmap0(self.weight, c=self.c)
 
-        logits = x @ self.weight.T + self.bias
+        logits = x @ weight.T + bias
         # logits = logits * x_norm
         # logits = x + self.bias
         # logits = -x * norm + self.bias
-        weight_norm = torch.norm(self.weight, dim=-1, keepdim=True).T.squeeze()
+        weight_norm = torch.norm(weight, dim=-1, keepdim=True).T.squeeze()
         x_norm = torch.norm(x, dim=-1, keepdim=True)
         c=0.1
         return logits * torch.exp(weight_norm) * torch.exp(x_norm)
