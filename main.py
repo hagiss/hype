@@ -142,8 +142,8 @@ if use_cuda:
     net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
     cudnn.benchmark = True
 
-# criterion = nn.CrossEntropyLoss()
-criterion = smooth_crossentropy
+criterion = nn.CrossEntropyLoss()
+# criterion = smooth_crossentropy
 
 # Training
 def train(epoch):
@@ -160,10 +160,11 @@ def train(epoch):
             inputs, targets = inputs.cuda(), targets.cuda() # GPU settings
         optimizer.zero_grad()
         inputs, targets = Variable(inputs), Variable(targets)
-        out_e, out_h, norm = net(inputs)               # Forward Propagation
-        loss_e = criterion(out_e, targets)  # Loss
+        out_h, norm = net(inputs)               # Forward Propagation
+        # loss_e = criterion(out_e, targets)  # Loss
         loss_h = criterion(out_h, targets)
-        loss = (loss_e + loss_h) / 2
+        loss = loss_h
+        # loss = (loss_e + loss_h) / 2
         # log_norm = torch.log(norm)
         # loss += l_reg * torch.norm(log_norm - torch.mean(log_norm))
         loss += l_reg * torch.norm(norm - torch.mean(norm))
@@ -193,7 +194,7 @@ def test(epoch):
             if use_cuda:
                 inputs, targets = inputs.cuda(), targets.cuda()
             inputs, targets = Variable(inputs), Variable(targets)
-            outputs, _, norm = net(inputs)
+            outputs, norm = net(inputs)
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()
