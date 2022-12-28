@@ -93,7 +93,7 @@ class HypClassifer(nn.Module):
         # logits = logits * x_norm
         # logits = x + self.bias
         # logits = -x * norm + self.bias
-        return logits * x_norm * torch.norm(self.weight, dim=-1, keepdim=True).T.squeeze() * 0.1
+        return logits * torch.norm(self.weight, dim=-1, keepdim=True).T.squeeze() / x_norm
 
 class HypLinear(nn.Module):
     def __init__(self, in_features, out_features, c, bias=True):
