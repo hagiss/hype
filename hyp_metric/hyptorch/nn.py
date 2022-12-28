@@ -69,9 +69,7 @@ class HypClassifer(nn.Module):
             init.uniform_(self.bias, -bound, bound)
 
     def forward(self, x):
-        # _x = repeat(x, "b d -> b nc d", nc=self.num_classes)
-        x_norm = torch.norm(x, dim=-1, keepdim=True)
-        # x = x
+        # _x = repeat(x, "b d -> b nc d", nc=self.num_classes)        # x = x
         # weight_norm = torch.norm(self.weight, dim=-1, keepdim=True)
         # weight = self.weight * weight_norm
         # x_norm = torch.exp(x_norm * self.c)
@@ -98,8 +96,9 @@ class HypClassifer(nn.Module):
         # logits = x + self.bias
         # logits = -x * norm + self.bias
         weight_norm = torch.norm(self.weight, dim=-1, keepdim=True).T.squeeze()
+        x_norm = torch.norm(x, dim=-1, keepdim=True)
         c=0.1
-        return logits * torch.exp(weight_norm*c) * torch.exp(x_norm*c)
+        return logits * torch.exp(weight_norm) * torch.exp(x_norm)
 
 class HypLinear(nn.Module):
     def __init__(self, in_features, out_features, c, bias=True):
