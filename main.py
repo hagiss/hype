@@ -38,6 +38,59 @@ start_epoch, num_epochs, batch_size, optim_type, is_hyp, c, l_reg, c_add = cf.st
 
 # Data Uplaod
 print('\n[Phase 1] : Data Preparation')
+
+class GaussianBlur(object):
+    """blur a single image on CPU"""
+    def __init__(self, kernel_size):
+        radias = kernel_size // 2
+        kernel_size = radias * 2 + 1
+        self.blur_h = nn.Conv2d(3, 3, kernel_size=(kernel_size, 1),
+                                stride=1, padding=0, bias=False, groups=3)
+        self.blur_v = nn.Conv2d(3, 3, kernel_size=(1, kernel_size),
+                                stride=1, padding=0, bias=False, groups=3)
+        self.k = kernel_size
+        self.r = radias
+
+        self.blur = nn.Sequential(
+            nn.ReflectionPad2d(radias),
+            self.blur_h,
+            self.blur_v
+        )
+
+        self.pil_to_tensor = transforms.ToTensor()
+        self.tensor_to_pil = transforms.ToPILImage()
+
+    def __call__(self, img):
+        img = self.pil_to_tensor(img).unsqueeze(0)
+
+        sigma = np.random.uniform(0.1, 2.0)
+        x = np.arange(-self.r, self.r + 1)
+        x = np.exp(-np.power(x, 2) / (2 * sigma * sigma))
+        x = x / x.sum()
+        x = torch.from_numpy(x).view(1, -1).repeat(3, 1)
+
+        self.blur_h.weight.data.copy_(x.view(3, 1, self.k, 1))
+        self.blur_v.weight.data.copy_(x.view(3, 1, 1, self.k))
+
+        with torch.no_grad():
+            img = self.blur(img)
+            img = img.squeeze()
+
+        img = self.tensor_to_pil(img)
+
+        return img
+
+s = 1
+size = 32
+color_jitter = transforms.ColorJitter(0.8 * s, 0.8 * s, 0.8 * s, 0.2 * s)
+transform_test = transforms.Compose([transforms.RandomResizedCrop(size=size),
+                                      transforms.RandomHorizontalFlip(),
+                                      transforms.RandomApply([color_jitter], p=0.8),
+                                      transforms.RandomGrayscale(p=0.2),
+                                      GaussianBlur(kernel_size=int(0.1 * size)),
+                                      transforms.ToTensor(),
+                                      transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset])])
+
 transform_train = transforms.Compose([
     # transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(),
@@ -45,18 +98,18 @@ transform_train = transforms.Compose([
     transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
 ]) # meanstd transformation
 
-transform_test = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
-])
+# transform_test = transforms.Compose([
+#     transforms.ToTensor(),
+#     transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
+# ])
 
-if(args.dataset == 'cifar10'):
+if (args.dataset == 'cifar10'):
     print("| Preparing CIFAR-10 dataset...")
     sys.stdout.write("| ")
     trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
     testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=False, transform=transform_test)
     num_classes = 10
-elif(args.dataset == 'cifar100'):
+elif (args.dataset == 'cifar100'):
     print("| Preparing CIFAR-100 dataset...")
     sys.stdout.write("| ")
     trainset = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform_train)
@@ -66,6 +119,7 @@ elif(args.dataset == 'cifar100'):
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
 testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
 
+
 # Return network & file name
 def getNetwork(args):
     if (args.net_type == 'lenet'):
@@ -73,25 +127,26 @@ def getNetwork(args):
         file_name = 'lenet'
     elif (args.net_type == 'vggnet'):
         net = VGG(args.depth, num_classes)
-        file_name = 'vgg-'+str(args.depth)
+        file_name = 'vgg-' + str(args.depth)
     elif (args.net_type == 'resnet'):
         net = ResNet(args.depth, num_classes)
-        file_name = 'resnet-'+str(args.depth)
+        file_name = 'resnet-' + str(args.depth)
     elif (args.net_type == 'wide-resnet'):
         net = Wide_ResNet(args.depth, args.widen_factor, args.dropout, num_classes, is_hyp, c, c_add)
-        file_name = 'wide-resnet-'+str(args.depth)+'x'+str(args.widen_factor)+'_hyp:'+str(is_hyp)+str(c)
+        file_name = 'wide-resnet-' + str(args.depth) + 'x' + str(args.widen_factor) + '_hyp:' + str(is_hyp) + str(c)
     else:
         print('Error : Network should be either [LeNet / VGGNet / ResNet / Wide_ResNet')
         sys.exit(0)
 
     return net, file_name
 
+
 # Test only option
 if (args.testOnly):
     print('\n[Test Phase] : Model setup')
     assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
     _, file_name = getNetwork(args)
-    checkpoint = torch.load('./checkpoint/'+args.dataset+os.sep+file_name+'.t7')
+    checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name + '.t7')
     net = checkpoint['net']
 
     if use_cuda:
@@ -116,8 +171,8 @@ if (args.testOnly):
             total += targets.size(0)
             correct += predicted.eq(targets.data).cpu().sum()
 
-        acc = 100.*correct/total
-        print("| Test Result\tAcc@1: %.2f%%" %(acc))
+        acc = 100. * correct / total
+        print("| Test Result\tAcc@1: %.2f%%" % (acc))
 
     sys.exit(0)
 
@@ -128,7 +183,7 @@ if args.resume:
     print('| Resuming from checkpoint...')
     assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
     _, file_name = getNetwork(args)
-    checkpoint = torch.load('./checkpoint/'+args.dataset+os.sep+file_name+'.t7')
+    checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name + '.t7')
     net = checkpoint['net']
     best_acc = checkpoint['acc']
     start_epoch = checkpoint['epoch']
@@ -145,6 +200,7 @@ if use_cuda:
 # criterion = nn.CrossEntropyLoss()
 criterion = smooth_crossentropy
 
+
 # Training
 def train(epoch):
     net.train()
@@ -154,13 +210,13 @@ def train(epoch):
     total = 0
     optimizer = optim.SGD(net.parameters(), lr=cf.learning_rate(args.lr, epoch), momentum=0.9, weight_decay=5e-4)
 
-    print('\n=> Training Epoch #%d, LR=%.4f' %(epoch, cf.learning_rate(args.lr, epoch)))
+    print('\n=> Training Epoch #%d, LR=%.4f' % (epoch, cf.learning_rate(args.lr, epoch)))
     for batch_idx, (inputs, targets) in enumerate(trainloader):
         if use_cuda:
-            inputs, targets = inputs.cuda(), targets.cuda() # GPU settings
+            inputs, targets = inputs.cuda(), targets.cuda()  # GPU settings
         optimizer.zero_grad()
         inputs, targets = Variable(inputs), Variable(targets)
-        out_h, norm = net(inputs)               # Forward Propagation
+        out_h, norm = net(inputs)  # Forward Propagation
         # loss_e = criterion(out_e, targets)  # Loss
         loss_h = criterion(out_h, targets)
         loss = loss_h
@@ -168,7 +224,7 @@ def train(epoch):
         # log_norm = torch.log(norm)
         # loss += l_reg * torch.norm(log_norm - torch.mean(log_norm))
         loss += l_reg * torch.norm(norm - torch.mean(norm))
-        loss.backward()   # Backward Propagation
+        loss.backward()  # Backward Propagation
         optimizer.step()  # Optimizer update
 
         train_loss += loss.item()
@@ -178,9 +234,10 @@ def train(epoch):
 
         sys.stdout.write('\r')
         sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%% Norm: %.3f'
-                %(epoch, num_epochs, batch_idx+1,
-                    (len(trainset)//batch_size)+1, loss.item(), 100.*correct/total, norm.mean().item()))
+                         % (epoch, num_epochs, batch_idx + 1,
+                            (len(trainset) // batch_size) + 1, loss.item(), 100. * correct / total, norm.mean().item()))
         sys.stdout.flush()
+
 
 def test(epoch):
     global best_acc
@@ -203,23 +260,25 @@ def test(epoch):
             correct += predicted.eq(targets.data).cpu().sum()
 
         # Save checkpoint when best model
-        acc = 100.*correct/total
-        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%% Norm: %.3f" %(epoch, loss.item(), acc, norm.mean().item()))
+        acc = 100. * correct / total
+        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%% Norm: %.3f" % (
+        epoch, loss.item(), acc, norm.mean().item()))
 
         if acc > best_acc:
-            print('| Saving Best model...\t\t\tTop1 = %.2f%%' %(acc))
+            print('| Saving Best model...\t\t\tTop1 = %.2f%%' % (acc))
             state = {
-                    'net':net.module if use_cuda else net,
-                    'acc':acc,
-                    'epoch':epoch,
+                'net': net.module if use_cuda else net,
+                'acc': acc,
+                'epoch': epoch,
             }
             if not os.path.isdir('checkpoint'):
                 os.mkdir('checkpoint')
-            save_point = './checkpoint/'+args.dataset+os.sep
+            save_point = './checkpoint/' + args.dataset + os.sep
             if not os.path.isdir(save_point):
                 os.mkdir(save_point)
-            torch.save(state, save_point+file_name+'.t7')
+            torch.save(state, save_point + file_name + '.t7')
             best_acc = acc
+
 
 print('\n[Phase 3] : Training model')
 print('| Training Epochs = ' + str(num_epochs))
@@ -227,7 +286,7 @@ print('| Initial Learning Rate = ' + str(args.lr))
 print('| Optimizer = ' + str(optim_type))
 
 elapsed_time = 0
-for epoch in range(start_epoch, start_epoch+num_epochs):
+for epoch in range(start_epoch, start_epoch + num_epochs):
     start_time = time.time()
 
     train(epoch)
@@ -235,7 +294,7 @@ for epoch in range(start_epoch, start_epoch+num_epochs):
 
     epoch_time = time.time() - start_time
     elapsed_time += epoch_time
-    print('| Elapsed time : %d:%02d:%02d'  %(cf.get_hms(elapsed_time)))
+    print('| Elapsed time : %d:%02d:%02d' % (cf.get_hms(elapsed_time)))
 
 print('\n[Phase 4] : Testing model')
-print('* Test results : Acc@1 = %.2f%%' %(best_acc))
+print('* Test results : Acc@1 = %.2f%%' % (best_acc))
