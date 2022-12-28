@@ -21,7 +21,6 @@ class HyperbolicMLR(nn.Module):
         self.c = c
         self.n_classes = n_classes
         self.ball_dim = ball_dim
-        self.to_poincare = ToPoincare(c, clip_r=1)
         self.reset_parameters()
 
     def forward(self, x, c=None):
@@ -29,7 +28,8 @@ class HyperbolicMLR(nn.Module):
             c = torch.as_tensor(self.c).type_as(x)
         else:
             c = torch.as_tensor(c).type_as(x)
-        x, _ = self.to_poincare(x)
+        to_poincare = ToPoincare(c, clip_r=1)
+        x, _ = to_poincare(x)
         p_vals_poincare = pmath.expmap0(self.p_vals, c=c)
         # p_vals_poincare = self.p_vals
         conformal_factor = 1 - c * p_vals_poincare.pow(2).sum(dim=1, keepdim=True)
