@@ -95,9 +95,9 @@ class Wide_ResNet(nn.Module):
         #     out = mobius_add(out, x/8, c=self.c_add)
         #     out = mobius_add(out, x/16, c=self.c_add)
 
-        out_e, out_h = self.linear(out)
+        out_h = self.linear(out)
 
-        return out_e, out_h, out_norm
+        return out_h, out_norm
 
 if __name__ == '__main__':
     net=Wide_ResNet(28, 10, 0.3, 10)

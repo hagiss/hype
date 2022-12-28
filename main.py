@@ -165,7 +165,7 @@ def train(epoch):
         inputs, targets = Variable(inputs), Variable(targets)
 
         enable_running_stats(net)
-        out_e, out_h, norm = net(inputs)               # Forward Propagation
+        out_h, norm = net(inputs)               # Forward Propagation
         # loss_e = criterion(out_e, targets)  # Loss
         loss_h = criterion(out_h, targets)
         # loss = (loss_e + loss_h) / 2
@@ -177,7 +177,7 @@ def train(epoch):
         optimizer.first_step(zero_grad=True)  # Optimizer update
 
         disable_running_stats(net)
-        out_e, out_h, norm = net(inputs)  # Forward Propagation
+        out_h, norm = net(inputs)  # Forward Propagation
         # loss_e = criterion(out_e, targets)  # Loss
         loss_h = criterion(out_h, targets)
         # loss2 = (loss_e + loss_h) / 2
@@ -191,9 +191,9 @@ def train(epoch):
         correct += predicted.eq(targets.data).cpu().sum()
 
         sys.stdout.write('\r')
-        sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%% Norm: %.3f'
+        sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%% Norm: %.3f Norm_var: %.3f'
                 %(epoch, num_epochs, batch_idx+1,
-                    (len(trainset)//batch_size)+1, loss.item(), 100.*correct/total, norm.mean().item()))
+                    (len(trainset)//batch_size)+1, loss.item(), 100.*correct/total, norm.mean().item(), norm.var().item()))
         sys.stdout.flush()
 
 def test(epoch):
@@ -208,7 +208,7 @@ def test(epoch):
             if use_cuda:
                 inputs, targets = inputs.cuda(), targets.cuda()
             inputs, targets = Variable(inputs), Variable(targets)
-            _, outputs, _ = net(inputs)
+            outputs, norm = net(inputs)
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()
@@ -218,7 +218,7 @@ def test(epoch):
 
         # Save checkpoint when best model
         acc = 100.*correct/total
-        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%" %(epoch, loss.item(), acc))
+        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%% Norm: %.3f Norm_var: %.3f" %(epoch, loss.item(), acc, norm.mean().item(), norm.var().item()))
 
         if acc > best_acc:
             print('| Saving Best model...\t\t\tTop1 = %.2f%%' %(acc))
