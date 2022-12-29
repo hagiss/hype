@@ -95,9 +95,9 @@ class HypClassifer(nn.Module):
         weight_norm = torch.norm(self.weight, dim=-1, keepdim=True).T.squeeze() * 0.1
 
         logits = x @ self.weight.T + self.bias
-        logits2 = x.detach() @ self.weight.T + self.bias
+        # logits2 = x.detach() @ self.weight.T + self.bias
         c=0.1
-        return (logits2 * (x_norm) + logits * (x_norm)) / 2
+        return (logits.detach() * (x_norm) + logits * (x_norm)) / 2
 
 class HypLinear(nn.Module):
     def __init__(self, in_features, out_features, c, bias=True):
