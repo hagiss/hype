@@ -88,7 +88,7 @@ class Wide_ResNet(nn.Module):
         out = F.relu(self.bn1(out))
         out = F.avg_pool2d(out, 8)
         out = out.view(out.size(0), -1)
-        out_norm = torch.norm(out, dim=-1, keepdim=True) + 1e-5
+        x_norm = torch.norm(out, dim=-1, keepdim=True) + 1e-5
         # out = out / 4
         #     x = out
         #     out = mobius_add(x/2, x/4, c=self.c_add)
@@ -97,7 +97,7 @@ class Wide_ResNet(nn.Module):
 
         out_h = self.linear(out)
 
-        return out_h, out_norm
+        return out_h, x_norm
 
 if __name__ == '__main__':
     net=Wide_ResNet(28, 10, 0.3, 10)
