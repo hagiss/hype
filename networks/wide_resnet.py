@@ -65,7 +65,8 @@ class Wide_ResNet(nn.Module):
         self.bn1 = nn.BatchNorm2d(nStages[3], momentum=0.9)
         if is_hyp:
             # self.linear = hypnn.HyperbolicMLR(nStages[3], num_classes, self.c)
-            self.linear = hypnn.HypClassifer(nStages[3], num_classes, self.c)
+            # self.linear = hypnn.HypClassifer(nStages[3], num_classes, self.c)
+            self.linear = hypnn.HypLinear(nStages[3], num_classes, self.c)
         else:
             self.linear = nn.Linear(nStages[3], num_classes)
 
