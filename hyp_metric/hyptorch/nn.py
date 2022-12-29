@@ -91,8 +91,8 @@ class HypClassifer(nn.Module):
         # bias = pmath.expmap0(self.bias, c=self.c)
         # weight = pmath.expmap0(self.weight, c=self.c)
 
-        x_norm = torch.norm(x, dim=-1, keepdim=True)
-        weight_norm = torch.norm(self.weight, dim=-1, keepdim=True).T.squeeze()
+        x_norm = torch.norm(x, dim=-1, keepdim=True) * 0.1
+        weight_norm = torch.norm(self.weight, dim=-1, keepdim=True).T.squeeze() * 0.1
 
         logits = x @ self.weight.T + self.bias
         c=0.1
