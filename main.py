@@ -82,26 +82,26 @@ class GaussianBlur(object):
 
 s = 1
 size = 32
-color_jitter = transforms.ColorJitter(0.8 * s, 0.8 * s, 0.8 * s, 0.2 * s)
-transform_test = transforms.Compose([transforms.RandomResizedCrop(size=size),
-                                      transforms.RandomHorizontalFlip(),
-                                      transforms.RandomApply([color_jitter], p=0.8),
-                                      transforms.RandomGrayscale(p=0.2),
-                                      GaussianBlur(kernel_size=int(0.1 * size)),
-                                      transforms.ToTensor(),
-                                      transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset])])
+# color_jitter = transforms.ColorJitter(0.8 * s, 0.8 * s, 0.8 * s, 0.2 * s)
+# transform_test2 = transforms.Compose([transforms.RandomResizedCrop(size=size),
+#                                       transforms.RandomHorizontalFlip(),
+#                                       transforms.RandomApply([color_jitter], p=0.8),
+#                                       transforms.RandomGrayscale(p=0.2),
+#                                       GaussianBlur(kernel_size=int(0.1 * size)),
+#                                       transforms.ToTensor(),
+#                                       transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset])])
 
 transform_train = transforms.Compose([
-    # transforms.RandomCrop(32, padding=4),
+    transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
 ]) # meanstd transformation
 
-# transform_test = transforms.Compose([
-#     transforms.ToTensor(),
-#     transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
-# ])
+transform_test = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
+])
 
 if (args.dataset == 'cifar10'):
     print("| Preparing CIFAR-10 dataset...")
@@ -113,12 +113,13 @@ elif (args.dataset == 'cifar100'):
     print("| Preparing CIFAR-100 dataset...")
     sys.stdout.write("| ")
     trainset = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform_train)
-    # testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=False, transform=transform_test)
-    testset = torchvision.datasets.STL10('../dataset', split="test", transform=transform_test, download=False)
+    testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=False, transform=transform_test)
+    testset_stl = torchvision.datasets.STL10('../dataset', split="test", transform=transform_test, download=False)
     num_classes = 100
 
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
 testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
+testloader_stl = torch.utils.data.DataLoader(testset_stl, batch_size=100, shuffle=False, num_workers=2)
 
 
 # Return network & file name
@@ -240,7 +241,7 @@ def train(epoch):
         sys.stdout.flush()
 
 
-def test(epoch):
+def test(epoch, testloader):
     global best_acc
     net.eval()
     net.training = False
@@ -278,7 +279,7 @@ def test(epoch):
             # if not os.path.isdir(save_point):
             #     os.mkdir(save_point)
             # torch.save(state, save_point + file_name + '.t7')
-            # best_acc = acc
+            best_acc = acc
 
 
 print('\n[Phase 3] : Training model')
@@ -291,7 +292,8 @@ for epoch in range(start_epoch, start_epoch + num_epochs):
     start_time = time.time()
 
     train(epoch)
-    test(epoch)
+    test(epoch, testloader)
+    test(epoch, testloader_stl)
 
     epoch_time = time.time() - start_time
     elapsed_time += epoch_time
