@@ -96,7 +96,7 @@ class HypClassifer(nn.Module):
         # logits = x + self.bias
         # logits = -x * norm + self.bias
         x_norm = torch.norm(x, dim=-1)
-        weight_norm = torch.norm(self.weight, dim=-1, keepdim=True).T.squeeze()
+        weight_norm = torch.norm(self.weight.T, dim=-1, keepdim=True).T.squeeze()
         # print(weight_norm.shape)
         # print(x_norm.shape)
         c=0.1
