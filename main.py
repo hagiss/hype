@@ -99,6 +99,7 @@ transform_train = transforms.Compose([
 ]) # meanstd transformation
 
 transform_test = transforms.Compose([
+    transforms.RandomCrop(32),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
 ])
