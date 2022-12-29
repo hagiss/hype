@@ -90,7 +90,7 @@ class HypClassifer(nn.Module):
         # bias = pmath.expmap0(self.bias, c=self.c)
         # weight = pmath.expmap0(self.weight, c=self.c)
 
-        logits = pmath.mobius_matvec(x, self.weight.T, c=self.c) # + bias
+        logits = pmath.mobius_matvec(x, self.weight, c=self.c) # + bias
         # logits = logits * x_norm
         # logits = x + self.bias
         # logits = -x * norm + self.bias
