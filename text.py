@@ -39,7 +39,7 @@ def delta_hyp(dismat):
 
 def get_rel_hyp(inputs):
     inputs = tokenizer(inputs, return_tensors="pt")
-    outputs = model(inputs)
+    outputs = model(**inputs)
     last_hidden_states = outputs.last_hidden_state
     # print(last_hidden_states.shape)
 
