@@ -6,7 +6,7 @@ import numpy as np
 from patchify import patchify
 from einops import rearrange
 
-url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+url = "http://images.cocodataset.org/val2017/000000581781.jpg"
 image = Image.open(requests.get(url, stream=True).raw)
 
 feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/vit-mae-base")
