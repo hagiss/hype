@@ -11,7 +11,7 @@ image = Image.open(requests.get(url, stream=True).raw)
 
 feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/vit-mae-base")
 model = ViTMAEModel.from_pretrained("facebook/vit-mae-base")
-model.embeddings.config.mask_ratio = 1.0
+model.embeddings.config.mask_ratio = 0
 
 inputs = feature_extractor(images=image, return_tensors="pt")
 # print(inputs['pixel_values'].shape)
@@ -22,7 +22,7 @@ patches = patches.reshape((14*14, 16*16*3))
 # print(patches)
 outputs = model(**inputs)
 last_hidden_states = outputs.last_hidden_state
-print(last_hidden_states.shape)
+# print(last_hidden_states.shape)
 
 # print(last_hidden_states.shape)
 last_hidden_states = last_hidden_states.squeeze().detach().numpy()
