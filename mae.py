@@ -12,8 +12,8 @@ from tqdm import tqdm
 url = "http://images.cocodataset.org/val2017/000000581781.jpg"
 image = Image.open(requests.get(url, stream=True).raw)
 
-feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/vit-mae-base")
-model = ViTMAEModel.from_pretrained("facebook/vit-mae-base")
+feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/vit-mae-base").cuda()
+model = ViTMAEModel.from_pretrained("facebook/vit-mae-base").cuda()
 model.embeddings.config.mask_ratio = 0
 
 def delta_hyp(dismat):
@@ -31,7 +31,7 @@ def delta_hyp(dismat):
 
 def get_rel_hyp(inputs):
     # print(inputs['pixel_values'].shape)
-    images = inputs.squeeze()
+    images = inputs.squeeze().cpu()
     images = rearrange(images, "c w h -> w h c").numpy()
     patches = patchify(images, (16, 16, 3), step=16)
     patches = patches.reshape((14 * 14, 16 * 16 * 3))
