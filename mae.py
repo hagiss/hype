@@ -11,11 +11,12 @@ feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/vit-mae-base"
 model = ViTMAEModel.from_pretrained("facebook/vit-mae-base")
 
 inputs = feature_extractor(images=image, return_tensors="pt")
+print(inputs)
 outputs = model(**inputs)
 last_hidden_states = outputs.last_hidden_state
 
 # print(last_hidden_states.shape)
-last_hidden_states = last_hidden_states.squeeze().detach().numpy()
+last_hidden_states = last_hidden_states.squeeze().detach().numpy()[1:, :]
 
 dis_mat = distance_matrix(last_hidden_states, last_hidden_states)
 
