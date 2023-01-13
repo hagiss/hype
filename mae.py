@@ -32,4 +32,7 @@ def delta_hyp(dismat):
     maxmin = np.max(np.minimum(XY_p[:, :, None], XY_p[None, :, :]), axis=1)
     return np.max(maxmin - XY_p)
 
-print(delta_hyp(dis_mat))
+delta = delta_hyp(dis_mat)
+diam = np.max(dis_mat)
+
+print((2 * delta) / diam)
