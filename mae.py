@@ -1,4 +1,4 @@
-from transformers import AutoFeatureExtractor, ViTMAEModel
+from transformers import AutoFeatureExtractor, ViTMAEModel, DeiTModel
 from PIL import Image
 import requests
 from scipy.spatial import distance_matrix
@@ -13,9 +13,13 @@ import torch
 url = "http://images.cocodataset.org/val2017/000000581781.jpg"
 image = Image.open(requests.get(url, stream=True).raw)
 
-feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/vit-mae-base")
-model = ViTMAEModel.from_pretrained("facebook/vit-mae-base").cuda()
-model.embeddings.config.mask_ratio = 0
+# feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/vit-mae-base")
+# model = ViTMAEModel.from_pretrained("facebook/vit-mae-base").cuda()
+# model.embeddings.config.mask_ratio = 0
+
+feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/deit-base-distilled-patch16-224")
+model = DeiTModel.from_pretrained("facebook/deit-base-distilled-patch16-224")
+
 
 def delta_hyp(dismat):
     """
