@@ -7,6 +7,7 @@ from patchify import patchify
 from einops import rearrange
 import torchvision.datasets as datasets
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 url = "http://images.cocodataset.org/val2017/000000581781.jpg"
 image = Image.open(requests.get(url, stream=True).raw)
@@ -73,7 +74,7 @@ total_h = 0
 total_i = 0
 total = 0
 
-for images, label in val_loader:
+for images, label in tqdm(val_loader):
     images = images["pixel_values"]
     for i in range(images.shape[0]):
         image = images[i]
