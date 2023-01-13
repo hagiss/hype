@@ -41,7 +41,7 @@ def get_rel_hyp(inputs):
     # print(last_hidden_states.shape)
 
     # print(last_hidden_states.shape)
-    last_hidden_states = last_hidden_states.squeeze().detach().numpy()
+    last_hidden_states = last_hidden_states.squeeze().cpu().detach().numpy()
 
     dis_mat = distance_matrix(last_hidden_states, last_hidden_states)
     delta = delta_hyp(dis_mat)
