@@ -11,6 +11,7 @@ image = Image.open(requests.get(url, stream=True).raw)
 
 feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/vit-mae-base")
 model = ViTMAEModel.from_pretrained("facebook/vit-mae-base")
+model.embeddings.config.mask_ratio = 1.0
 
 inputs = feature_extractor(images=image, return_tensors="pt")
 # print(inputs['pixel_values'].shape)
