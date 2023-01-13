@@ -6,7 +6,7 @@ import numpy as np
 from patchify import patchify
 from einops import rearrange
 import torchvision.datasets as datasets
-import torch.utils.data import DataLoader
+from torch.utils.data import DataLoader
 
 url = "http://images.cocodataset.org/val2017/000000581781.jpg"
 image = Image.open(requests.get(url, stream=True).raw)
