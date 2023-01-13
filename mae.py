@@ -11,7 +11,7 @@ feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/vit-mae-base"
 model = ViTMAEModel.from_pretrained("facebook/vit-mae-base")
 
 inputs = feature_extractor(images=image, return_tensors="pt")
-print(inputs['pixel_values'])
+print(inputs['pixel_values'].shape)
 outputs = model(**inputs)
 last_hidden_states = outputs.last_hidden_state
 
