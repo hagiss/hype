@@ -15,7 +15,7 @@ outputs = model(**inputs)
 last_hidden_states = outputs.last_hidden_state
 
 # print(last_hidden_states.shape)
-last_hidden_states.squeeze().detach().numpy()
+last_hidden_states.squeeze().detach().cpu().numpy()
 
 dis_mat = distance_matrix(last_hidden_states, last_hidden_states)
 
