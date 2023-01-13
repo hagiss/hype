@@ -6,8 +6,9 @@ import numpy as np
 from patchify import patchify
 from einops import rearrange
 import torchvision.datasets as datasets
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
+import torch
 
 url = "http://images.cocodataset.org/val2017/000000581781.jpg"
 image = Image.open(requests.get(url, stream=True).raw)
@@ -61,6 +62,9 @@ dataset_val = datasets.ImageFolder(
     path + '/val',
     lambda x: feature_extractor(images=x, return_tensors="pt")
 )
+
+indices = torch.randperm(len(dataset_val))[:1500]
+dataset_val = Subset(dataset_val, indices)
 
 val_loader = DataLoader(
     dataset_val,
