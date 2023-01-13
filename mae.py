@@ -17,8 +17,8 @@ inputs = feature_extractor(images=image, return_tensors="pt")
 images = inputs['pixel_values'].squeeze()
 images = rearrange(images, "c w h -> w h c").numpy()
 patches = patchify(images, (16, 16, 3), step=16)
-patches = patches.reshape((14*14, 16*16*3)).shape
-print(patches)
+patches = patches.reshape((14*14, 16*16*3))
+# print(patches)
 outputs = model(**inputs)
 last_hidden_states = outputs.last_hidden_state
 
