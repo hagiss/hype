@@ -17,7 +17,8 @@ inputs = feature_extractor(images=image, return_tensors="pt")
 images = inputs['pixel_values'].squeeze()
 images = rearrange(images, "c w h -> w h c").numpy()
 patches = patchify(images, (16, 16, 3), step=16)
-print(patches.shape)
+patches = patches.reshape((14*14, 16*16*3)).shape
+print(patches)
 outputs = model(**inputs)
 last_hidden_states = outputs.last_hidden_state
 
@@ -42,4 +43,9 @@ def delta_hyp(dismat):
 delta = delta_hyp(dis_mat)
 diam = np.max(dis_mat)
 
+dis_p = distance_matrix(patches, patches)
+delta_p = delta_hyp(dis_p)
+diam_p = np.max(dis_p)
+
 print("hidden", (2 * delta) / diam)
+print("image", (2 * delta_p) / diam_p)
