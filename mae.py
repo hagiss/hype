@@ -18,7 +18,7 @@ image = Image.open(requests.get(url, stream=True).raw)
 # model.embeddings.config.mask_ratio = 0
 
 feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/deit-base-distilled-patch16-224")
-model = DeiTModel.from_pretrained("facebook/deit-base-distilled-patch16-224")
+model = DeiTModel.from_pretrained("facebook/deit-base-distilled-patch16-224").cuda()
 
 
 def delta_hyp(dismat):
