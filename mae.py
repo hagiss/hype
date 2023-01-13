@@ -3,6 +3,8 @@ from PIL import Image
 import requests
 from scipy.spatial import distance_matrix
 import numpy as np
+from patchify import patchify
+from einops import rearrange
 
 url = "http://images.cocodataset.org/val2017/000000039769.jpg"
 image = Image.open(requests.get(url, stream=True).raw)
@@ -11,7 +13,11 @@ feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/vit-mae-base"
 model = ViTMAEModel.from_pretrained("facebook/vit-mae-base")
 
 inputs = feature_extractor(images=image, return_tensors="pt")
-print(inputs['pixel_values'].shape)
+# print(inputs['pixel_values'].shape)
+images = inputs['pixel_values'].squeeze()
+images = rearrange(images, "c w h -> w h c")
+patches = patchify(images, (16, 16, 3))
+print(patches.shape)
 outputs = model(**inputs)
 last_hidden_states = outputs.last_hidden_state
 
@@ -36,4 +42,4 @@ def delta_hyp(dismat):
 delta = delta_hyp(dis_mat)
 diam = np.max(dis_mat)
 
-print((2 * delta) / diam)
+print("hidden", (2 * delta) / diam)
