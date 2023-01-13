@@ -22,6 +22,7 @@ patches = patches.reshape((14*14, 16*16*3))
 # print(patches)
 outputs = model(**inputs)
 last_hidden_states = outputs.last_hidden_state
+print(last_hidden_states.shape)
 
 # print(last_hidden_states.shape)
 last_hidden_states = last_hidden_states.squeeze().detach().numpy()
